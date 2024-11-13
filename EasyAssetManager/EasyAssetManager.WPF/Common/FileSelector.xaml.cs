@@ -42,6 +42,8 @@ namespace EasyAssetManager.WPF.Common
             set
             {
                 _TargetFilePath = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetFilePath)));
             }
         }
 
@@ -68,7 +70,6 @@ namespace EasyAssetManager.WPF.Common
             if(ofd.ShowDialog() == true)
             {
                 TargetFilePath = ofd.FileName;
-                PropertyChanged.Invoke(this,new PropertyChangedEventArgs(nameof(FileName)));
             }
         }
     }

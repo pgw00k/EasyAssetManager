@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,67 +21,71 @@ namespace EasyAssetManager.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        string TestFilePath = @"D:\Wings\Desktop\Test_EAMS.json";
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
+            TargetFilePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"Asset_EAMS.json");
+            this.TextTargetFilePath.DataContext = this.FSTargetFile;
         }
 
-        public void BtnRefreshClick(object sender, RoutedEventArgs e)
-        {
+        public event PropertyChangedEventHandler PropertyChanged;
 
-            AssetPackInfo Info = AssetPackUtils.ReadFromFile(TestFilePath);
+        public virtual void BtnRefreshClick(object sender, RoutedEventArgs e)
+        {
+            ReloadFile();
+        }
+
+        public virtual void BtnSaveClick(object sender, RoutedEventArgs e)
+        {
+            SaveFile();
+            ReloadFile();
+        }
+
+
+        public virtual void BtnRecreatehClick(object sender, RoutedEventArgs e)
+        {
+            RecreateFile();
+            ReloadFile();
+        }
+
+        public virtual void ReloadFile()
+        {
+            if (!File.Exists(TargetFilePath))
+            {
+                MessageBox.Show($"Not found {TargetFilePath}");
+                return;
+            }
+
+            AssetPackInfo Info = AssetPackUtils.ReadFromFile(TargetFilePath);
             this.Assets.BindPack = Info;
             this.Assets.RefreshUI();
-
         }
 
-        public void BtnSaveClick(object sender, RoutedEventArgs e)
+        public virtual void SaveFile()
         {
             this.Assets.UpdateData();
             AssetPackInfo Info = this.Assets.BindPack;
-            AssetPackUtils.WriteToFile(TestFilePath, Info);
+            AssetPackUtils.WriteToFile(TargetFilePath, Info);
         }
 
-        public void BtnRecreatehClick(object sender, RoutedEventArgs e)
+        public virtual void RecreateFile()
         {
-            BaseTextureAsset Texture1 = new BaseTextureAsset();
-            Texture1.Name = "Texture1";
-            Texture1.FilePath = "Texture1.png";
+            AssetPackInfo Info = new AssetPackInfo();
+            AssetPackUtils.WriteToFile(TargetFilePath, Info);
+        }
 
-            BaseTextureAsset Texture2 = new BaseTextureAsset();
-            Texture2.Name = "Texture2";
-            Texture2.FilePath = "T_Test_Noraml.png";
-            Texture2.ColorSpace = ColorSpace.LINER;
-
-            BaseTextureAsset Texture3 = new BaseTextureAsset();
-            Texture3.Name = "MaskTexture";
-            Texture3.FilePath = "M_Test_Mask.png";
-            Texture3.ColorSpace = ColorSpace.GAMMA;
-
-            BaseModelAsset Model = new BaseModelAsset();
-            Model.AddTexture("BaseColor", Texture1);
-            Model.AddTexture("Normal", Texture2);
-            Model.AddTexture("Mask", Texture3);
-            Model.FilePath = "Test.fbx";
-            Model.Name = "Test";
-
-            BaseModelAsset Model2 = new BaseModelAsset();
-            Model2.AddTexture("BaseColor", Texture1);
-            Model2.AddTexture("Normal", Texture2);
-            Model2.FilePath = "Test2.fbx";
-            Model2.Name = "Test2";
-
-            BaseAsset[] Assets = new BaseAsset[] {
-                Model,
-                Model2
-            };
-            AssetPackInfo Info = new AssetPackInfo()
+        public string TargetFilePath
+        {
+            get
             {
-                Assets = Assets,
-            };
+                return this.FSTargetFile.TargetFilePath;
+            }
 
-            AssetPackUtils.WriteToFile(TestFilePath, Info);
+            set
+            {
+                this.FSTargetFile.TargetFilePath = value;
+            }
         }
     }
 }

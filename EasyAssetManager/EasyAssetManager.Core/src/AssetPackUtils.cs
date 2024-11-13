@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -21,6 +22,7 @@ namespace EasyAssetManager
             {
                 RegisterIgnoreProperty = new Dictionary<Type, IEnumerable<string>>()
                 {
+                    {typeof(BaseAsset),new string[]{ "References" } },
                     {typeof(BaseModelAsset),new string[]{ "Textures"} },
                 }
             },
@@ -41,11 +43,28 @@ namespace EasyAssetManager
 
         public static bool WriteToFile(string FileFullPath,AssetPackInfo Info)
         {
+            ReferenceFileToRelative(FileFullPath, Info);
             // 将对象转换为 JSON 字符串，并应用设置
             string json = JsonConvert.SerializeObject(Info, ToJsonSetting);
             File.WriteAllText(FileFullPath, json);
 
             return true;
+        }
+
+        /// <summary>
+        /// 将Pack中的引用文件，都转换为相对路径
+        /// </summary>
+        /// <param name="Info"></param>
+        public static void ReferenceFileToRelative(string FileFullPath,AssetPackInfo Info)
+        {
+            string refPath = Path.GetDirectoryName(FileFullPath);
+            foreach(BaseAsset asset in Info.Assets)
+            {
+                if (typeof(IBaseFileAsset).IsAssignableFrom(asset.GetType()))
+                {
+                    (asset as IBaseFileAsset).TurnToRelativePath(refPath);
+                }
+            }
         }
     }
 }

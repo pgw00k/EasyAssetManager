@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace EasyAssetManager
 {
     public interface IBaseFileAsset
     {
-        public string FilePath { get; set; }
+        string FilePath { get; set; }
+
+        string TurnToRelativePath(string RefPath);
     }
 
     /// <summary>
@@ -18,5 +17,19 @@ namespace EasyAssetManager
     {
         protected string _FilePath = string.Empty;
         public string FilePath { get => _FilePath; set => _FilePath = value; }
+
+        /// <summary>
+        /// 转换到一个相对路径
+        /// </summary>
+        /// <param name="RefPath"></param>
+        /// <returns></returns>
+        public virtual string TurnToRelativePath(string RefPath)
+        {
+            if (Path.IsPathRooted(this.FilePath))
+            {
+                return Path.GetRelativePath(RefPath, this._FilePath);
+            }
+            return _FilePath;
+        }
     }
 }
