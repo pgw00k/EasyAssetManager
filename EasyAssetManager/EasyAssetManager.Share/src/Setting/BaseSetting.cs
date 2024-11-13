@@ -10,8 +10,7 @@ namespace EasyAssetManager.Setting
     {
 
     }
-    public class BaseSetting: IBaseSetting
+    public class BaseSetting: BaseObject, IBaseSetting
     {
-
     }
 }

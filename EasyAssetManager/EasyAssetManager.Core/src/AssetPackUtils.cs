@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace EasyAssetManager
 {
@@ -11,23 +13,36 @@ namespace EasyAssetManager
     /// </summary>
     public class AssetPackUtils
     {
+        public static JsonSerializerSettings ToJsonSetting = new JsonSerializerSettings()
+        {
+            Formatting = Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new IgnorePropertiesResolver()
+            {
+                RegisterIgnoreProperty = new Dictionary<Type, IEnumerable<string>>()
+                {
+                    {typeof(BaseModelAsset),new string[]{ "Textures"} },
+                }
+            },
+        };
+
+        public static JsonSerializerSettings FromJsonSetting = new JsonSerializerSettings()
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Converters = new List<JsonConverter> { new BaseObjectTypeNameConverter() },
+        };
+
         public static AssetPackInfo ReadFromFile(string FileFullPath)
         {
-            return null;
+            string raw = File.ReadAllText(FileFullPath);
+            AssetPackInfo Info = JsonConvert.DeserializeObject<AssetPackInfo>(raw, FromJsonSetting);
+            return Info;
         }
 
         public static bool WriteToFile(string FileFullPath,AssetPackInfo Info)
         {
-
-            // 配置序列化设置
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-
             // 将对象转换为 JSON 字符串，并应用设置
-            string json = JsonConvert.SerializeObject(Info, settings);
+            string json = JsonConvert.SerializeObject(Info, ToJsonSetting);
             File.WriteAllText(FileFullPath, json);
 
             return true;
