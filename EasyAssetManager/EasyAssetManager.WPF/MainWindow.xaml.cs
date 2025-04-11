@@ -72,6 +72,7 @@ namespace EasyAssetManager.WPF
         public virtual void RecreateFile()
         {
             AssetPackInfo Info = new AssetPackInfo();
+            Info.Assets = new BaseAsset[] { new BaseAsset() };
             AssetPackUtils.WriteToFile(TargetFilePath, Info);
         }
 

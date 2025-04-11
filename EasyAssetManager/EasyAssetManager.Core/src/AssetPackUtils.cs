@@ -58,6 +58,10 @@ namespace EasyAssetManager
         public static void ReferenceFileToRelative(string FileFullPath,AssetPackInfo Info)
         {
             string refPath = Path.GetDirectoryName(FileFullPath);
+            if(Info.Assets == null)
+            {
+                return;
+            }
             foreach(BaseAsset asset in Info.Assets)
             {
                 if (typeof(IBaseFileAsset).IsAssignableFrom(asset.GetType()))

@@ -30,7 +30,7 @@ namespace EasyAssetManager.WPF
 
         public virtual void RefreshUI()
         {
-            if(BindPack == null)
+            if(BindPack == null || BindPack.Assets == null)
             {
                 return;
             }

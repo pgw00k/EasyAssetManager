@@ -143,6 +143,10 @@ namespace EasyAssetManager.WPF
             _TypeNameShort = NewAsset.GetType().Name;
 
             _BindContent = AssetDataFactory.CreateContentUI(NewAsset.TypeName);
+            if(_BindContent == null)
+            {
+                return;
+            }
             _BindContent.SetBindAsset(NewAsset);
 
             this.AssetContentNode.Children.Add(_BindContent);
